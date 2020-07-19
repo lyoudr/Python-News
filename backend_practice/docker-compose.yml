@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: nginx
+    image: nginx
+    volumes:
+      - ./nginx_default.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend_news:/frontend_news
+    depends_on:
+      - api_server_1
+      - api_server_2
+      - api_server_3
+    ports:
+      - 4200:4200
+    restart: always
+  db:
+    container_name: mysql
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=news # create database testDB
+      - MYSQL_USER=ann # create ann user
+      - MYSQL_PASSWORD=123456 # create ann's password in mysql
+      - MYSQL_ROOT_PASSWORD=123456 # represent db default root password
+    command: --default-authentication-plugin=mysql_native_password --mysqlx=0 # represent use older password verify way (mysql 5.0) to enter to mysql 8.0
+  api_server_1:
+    container_name: newsbackend_1
+    build: .
+    environment:
+      - SERVER_PORT=5100
+    depends_on:
+      - db
+    entrypoint: ["/python_practice/docker-entrypoint.sh"] # run this command to import "docker-entrypoint.sh" and run the code defined in it.
+    restart: always
+  api_server_2:
+    container_name: newsbackend_2
+    build: .
+    environment:
+      - SERVER_PORT=5200
+    depends_on:
+      - db
+    entrypoint: ["/python_practice/docker-entrypoint.sh"] # run this command to import "docker-entrypoint.sh" and run the code defined in it.
+    restart: always
+  api_server_3:
+    container_name: newsbackend_3
+    build: .
+    environment:
+      - SERVER_PORT=5300
+    depends_on:
+      - db
+    entrypoint: ["/python_practice/docker-entrypoint.sh"] # run this command to import "docker-entrypoint.sh" and run the code defined in it.
+    restart: always
